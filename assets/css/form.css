@@ -1,0 +1,164 @@
+body {
+    padding: 5px;
+    padding-top: 5px;
+	/* background-image: url(img/square.gif); */
+	background-repeat: repeat;
+	background: #dfe9f6;
+}
+
+.center {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-top: -50px;
+	margin-left: -50px;
+}
+
+.expired-row .x-grid-cell {
+    background-color: #ffe2e2; 
+    color: #900;
+}
+
+.go-row .x-grid-cell {
+    background-color: #e2ffe2; 
+    color: #090;
+}
+
+.kuning-row .x-grid-cell { 
+	background-color: #ffa;
+	color: #ff4500;
+}
+
+.x-statusbar .x-status-red{
+    background-color: #ffe2e2; 
+    color: #900;
+	font-weight: bold;
+}
+
+.x-statusbar .x-status-green{
+    background-color: #e2ffe2; 
+    color: #090;
+	font-weight: bold;
+}
+
+.x-statusbar .x-status-yellow{
+	background-color: #ffa;
+    color: #ff4500;
+	font-weight: bold;
+}
+
+.rowwrap .x-grid-cell-inner {
+	white-space: normal;
+}
+
+.text-wrapper .x-form-display-field {
+    height: auto;
+    min-height: 10px;
+}
+
+.icon-user {
+    background-image: url(img/user.png) !important;
+}
+
+.icon-user-add {
+    background-image: url(img/user_add.gif) !important;
+}
+
+.icon-user-edit {
+    background-image: url(img/user_edit.png) !important;
+}
+
+.icon-saved {
+    background-image: url(img/save.gif) !important;
+}
+
+.icon-save {
+    background-image: url(img/saved.png) !important;
+}
+
+.icon-reset {
+    background-image: url(img/stop.png) !important;
+}
+
+.icon-grid {
+    background-image: url(img/grid.png) !important;
+}
+
+.icon-add {
+    background-image: url(img/add.png) !important;
+}
+
+.icon-delete {
+    background-image: url(img/delete.png) !important;
+}
+
+.icon-download {
+    background-image: url(img/download.png) !important;
+}
+
+.icon-down{
+    background-image: url(img/hmenu-desc.png) !important;
+}
+
+.icon-detail{
+    background-image: url(img/detail.png) !important;
+}
+
+.icon-edit {
+    background-image: url(img/edit_task.png) !important;
+}
+
+.icon-exit {
+    background-image: url(img/x.png) !important;
+}
+
+.icon-logout {
+    background-image: url(img/logout.png) !important;
+}
+
+.icon-remove{
+    background-image: url(img/delete_task.png) !important;
+}
+
+.icon-refresh {
+    background-image: url(img/refresh.gif) !important;
+}
+
+.icon-reset {
+    background-image: url(img/table_refresh.png) !important;
+}
+
+.icon-preview {
+    background-image: url(img/preview.png) !important;
+}
+
+.icon-print {
+    background-image: url(img/printer.png) !important;
+}
+
+.icon-remove {
+    background-image: url(img/delete_task.png) !important;
+}
+
+.icon-up{
+    background-image: url(img/hmenu-asc.png) !important;
+}
+
+
+
+/* style rows on mouseover */
+.x-grid-item-over  .x-grid-cell-inner {
+	font-weight: bold;
+}
+
+/* search on grid */
+.x-livesearch-match {
+    font-weight: bold;
+    background-color: yellow;
+}
+.x-toolbar .x-form-cb-wrap {
+    line-height: 22px;
+}
+.x-toolbar .x-form-checkbox {
+    vertical-align: 0;
+}

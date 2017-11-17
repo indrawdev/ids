@@ -1,0 +1,69 @@
+README
+
+Ext.Create('Ext.window.Window') 	// me
+Ext.LoadMask 						// loading muncul text 
+
+
+#################################################
+# USER INTERFACE
+#################################################
+
+Ext.create('Ext.window.Window', {
+	// bisa dibuatkan variable	
+}).show();
+
+Ext.create('Ext.form.Panel', {
+	defaultType: 'textfield',
+	method: 'POST',
+	url: '',
+	items:[
+		// varible element field
+	],
+	buttons: [{
+
+	}],
+	renderTo: Ext.getBody()
+});
+
+Ext.create('Ext.ux.LiveSearchGridPanel', {
+	
+});
+
+Ext.LoadMask({
+	msg: '',
+	target: ''
+	// muncul text saat loading
+});
+
+
+#################################################
+# LOAD OR SHOW DATA
+#################################################
+
+Ext.create('Ext.data.Store', {
+	fields:['column1', 'column2', 'column3'],
+	proxy:{
+		actionMethods: {
+			read: 'POST'
+		},
+		reader: {
+			rootProperty: 'hasil',
+			totalProperty: 'total',
+			type: 'json'
+		},
+		type: 'ajax',
+		url: ''
+	},
+	listeners: {
+		beforehide: function() {
+
+		},
+		beforeshow: function() {
+
+		},
+		itemdblclick: function(grid, record) {
+		
+		}
+	}
+});
+
