@@ -165,44 +165,19 @@ class MBeliDO extends CI_Model
 	}
 
 	// FUNCTION IMPORT EXCEL
-	function checkFileExist()
+	function listImport()
 	{
 		$xSQL = ("
-			SELECT fs_filename FROM tx_uploadfile
-			WHERE fs_flag_deleted = '0'
-		");
-
-		$sSQL = $this->db->query($xSQL);
-		return $sSQL;
-	}
-
-	function listImportAll()
-	{
-		$xSQL = ("
-			SELECT a.fs_kd_product, b.fs_nm_product, 
+			SELECT a.fs_kd_wh, a.fs_kd_product, b.fs_nm_product, 
+				CONVERT(NUMERIC(35,0), a.fs_thn) fs_thn,
 				COUNT(a.fs_kd_product) as fn_qty, 'UNIT' as fs_unit
-			FROM tx_tempexcel a
-			LEFT JOIN tm_product b ON a.fs_kd_product = b.fs_kd_product
+			FROM tx_tempexcel a (NOLOCK)
+			LEFT JOIN tm_product b (NOLOCK) ON b.fs_kd_product = a.fs_kd_product
 			WHERE a.fs_kd_dept = '".trim($this->session->userdata('gDept'))."'
-			GROUP BY a.fs_kd_product, b.fs_nm_product
-		");
-
-		$sSQL = $this->db->query($xSQL);
-		return $sSQL;
-	}
-
-	function listImport($nlimit, $nStart)
-	{
-		$xSQL = ("
-			SELECT a.fs_kd_product, b.fs_nm_product, 
-				COUNT(a.fs_kd_product) as fn_qty, 'UNIT' as fs_unit
-			FROM tx_tempexcel a
-			LEFT JOIN tm_product b ON a.fs_kd_product = b.fs_kd_product
-			WHERE a.fs_kd_dept = '".trim($this->session->userdata('gDept'))."'
-			GROUP BY a.fs_kd_product, b.fs_nm_product
 		");
 
 		$xSQL = $xSQL.("
+			GROUP BY a.fs_kd_wh, a.fs_kd_product, b.fs_nm_product, a.fs_thn
 			ORDER BY a.fs_kd_product ASC
 		");
 
@@ -210,44 +185,30 @@ class MBeliDO extends CI_Model
 		return $sSQL;
 	}
 
-	function grid_prod($sRefno)
+	function listImportDetail()
 	{
 		$xSQL = ("
-			SELECT	a.fs_kd_product, a.fs_nm_product, a.fn_qtytr fn_qty,
-					a.fs_unitbill fs_kd_unit, ISNULL(c.fs_nm_unit, '') fs_nm_unit,
-					a.fn_unitprc fn_harga, a.fn_dscprc fn_diskon, a.fs_luxcd fs_kd_lux,
-					a.fs_luxnm fs_nm_lux, a.fn_luxpct fn_persen, a.fn_luxamt fn_lux,
-					a.fs_seqno
-			FROM	tx_posdetail a (NOLOCK)
-			LEFT JOIN tx_unitproduct b (NOLOCK) ON a.fs_kd_comp = b.fs_kd_comp
-				AND a.fs_kd_product = b.fs_kd_product
-			LEFT JOIN tm_unitconvertion c (NOLOCK) ON a.fs_kd_comp = c.fs_kd_comp
-				AND b.fs_kd_unit = c.fs_kd_unit
-				AND c.fb_active = 1
-			WHERE	a.fs_refno = '".trim($sRefno)."'
-			ORDER BY a.fs_seqno
+			SELECT 
+				a.fs_rangka, a.fs_machine as fs_mesin, 
+				CONVERT(NUMERIC(35,0), d.fn_silinder) fs_cc,
+				CONVERT(NUMERIC(35,0), a.fs_thn) fs_thn, 
+				a.fs_kd_warna as fs_kd_color, 
+				c.fs_nm_vareable as fs_nm_color,
+				a.fs_kd_wh, a.fs_nm_wh, a.fs_kd_product
+			FROM tx_tempexcel a (NOLOCK)
+			LEFT JOIN tm_product b (NOLOCK) 
+			ON b.fs_kd_product = a.fs_kd_product
+			LEFT JOIN tm_vareable c (NOLOCK)
+			ON c.fs_kd_vareable = a.fs_kd_warna AND c.fs_key = '08'
+			LEFT JOIN tm_icregister d (NOLOCK)
+			ON d.fs_rangka = a.fs_rangka AND d.fs_machine = a.fs_machine
+			WHERE a.fs_kd_dept = '".trim($this->session->userdata('gDept'))."'
 		");
-		
-		$sSQL = $this->db->query($xSQL);
-		return $sSQL;
-	}
 
-	function grid_reg($sRefno)
-	{
-		$xSQL = ("
-			SELECT	a.fs_rangka, a.fs_machine fs_mesin, a.fn_silinder fs_cc,
-					a.fd_thnpembuatan fs_thn, a.fs_kd_warna fs_kd_color, ISNULL(b.fs_nm_vareable, '') fs_nm_color,
-					a.fs_kd_wh, ISNULL(c.fs_nm_code, '') fs_nm_wh, a.fn_hpp,
-					a.fs_seqno, a.fs_kd_product
-			FROM	tm_icregister a (NOLOCK)
-			LEFT JOIN tm_vareable b (NOLOCK) ON a.fs_kd_warna = b.fs_kd_vareable
-				AND b.fs_key = '08'
-			LEFT JOIN tm_addr c (NOLOCK) ON a.fs_kd_wh = LTRIM(RTRIM(c.fs_code)) + LTRIM(RTRIM(c.fs_count))
-				AND c.fs_cdtyp = '11'
-			WHERE	a.fs_refno = '".trim($sRefno)."'
-			ORDER BY   a.fs_seqno, a.fs_seqnoRegister
+		$xSQL = $xSQL.("
+			ORDER BY a.fs_kd_product ASC
 		");
-		
+
 		$sSQL = $this->db->query($xSQL);
 		return $sSQL;
 	}

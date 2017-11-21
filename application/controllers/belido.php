@@ -768,40 +768,61 @@ class BeliDO extends CI_Controller
 
 	// FUNCTION IMPORT EXCEL
 	public function gridimport() {
-		$nstart = trim($this->input->post('start'));
-		$nlimit = trim($this->input->post('limit'));
-
 		$this->load->model('mBeliDO','',true);
-		$ssql = $this->mBeliDO->listImportAll();
-		$total = $ssql->num_rows();
-		
-		$ssql = $this->mBeliDO->listImport($nlimit, $nstart);
-		echo '({"total":"'.$total.'","hasil":'.json_encode($ssql->result()).'})';
+		$ssql = $this->mBeliDO->listImport();
+		$xArr = array();
+		if ($ssql->num_rows() > 0)
+		{
+			$seqno = 1;
+			foreach ($ssql->result() as $xRow)
+			{
+				$xArr[] = array(
+					'fs_kd_wh'		=> trim($xRow->fs_kd_wh),
+					'fs_kd_product'	=> trim($xRow->fs_kd_product),
+					'fs_nm_product'	=> trim($xRow->fs_nm_product),
+					'fs_thn'		=> trim($xRow->fs_thn),
+					'fn_qty'		=> trim($xRow->fn_qty),
+					'fs_unit'		=> 'UNIT',
+					'fs_seqno'		=> trim($seqno)
+				);
+
+				$seqno = $seqno + 1;
+			}
+		}
+		echo json_encode($xArr);
 	}
 
-	public function gridimportdetail() {
-		$refno = trim($this->input->post('fs_refno'));
-		
-		$this->load->model('mBeli','',true);
-		$ssql = $this->mBeli->grid_reg($refno);
-		
-		echo json_encode($ssql->result());
+	public function griddetail() {
+		$this->load->model('mBeliDO','',true);
+		$ssql = $this->mBeliDO->listImportDetail();
+		$xArr = array();
+		if ($ssql->num_rows() > 0)
+		{
+			foreach ($ssql->result() as $xRow)
+			{
+				$xArr[] = array(
+					'fs_rangka'		=> trim($xRow->fs_rangka),
+					'fs_mesin'		=> trim($xRow->fs_mesin),
+					'fs_cc'			=> trim($xRow->fs_cc),
+					'fs_thn'		=> trim($xRow->fs_thn),
+					'fs_kd_color'	=> trim($xRow->fs_kd_color),
+					'fs_nm_color'	=> trim($xRow->fs_nm_color),
+					'fs_kd_wh'		=> trim($xRow->fs_kd_wh),
+					'fs_nm_wh'		=> trim($xRow->fs_nm_wh),
+					'fs_kd_product'	=> trim($xRow->fs_kd_product)
+				);
+			}
+		}
+		echo json_encode($xArr);
 	}
-
-	function grid_prod()
-	{
-		$refno = trim($this->input->post('fs_refno'));
-		
-		$this->load->model('mBeli','',true);
-		$ssql = $this->mBeli->grid_prod($refno);
-		
-		echo json_encode($ssql->result());
-	}
-
 
 	public function uploadfile() {
 		$user = trim($this->session->userdata('gUser'));
 		$dept = trim($this->session->userdata('gDept'));
+		// variable
+		$nmWH = trim($this->input->post('cboWH2'));
+		$kdWH = trim($this->input->post('txtWH2'));
+		$thn = trim($this->input->post('txtThnKend'));
 
 		if (!empty($_FILES['txtFileExcel']['name'])) {
 			$name = $_FILES['txtFileExcel']['name'];
@@ -860,17 +881,21 @@ class BeliDO extends CI_Controller
 							'fs_kd_warna' => trim($xwarna),
 							'fs_rangka' => trim($rows['2']),
 							'fs_machine' => trim($rows['3']),
-							'fs_kd_dept' => trim($dept)
+							'fs_kd_dept' => trim($dept),
+							'fs_kd_wh' => trim($kdWH),
+							'fs_nm_wh' => trim($nmWH),
+							'fs_thn' => trim($thn)
 						);
 						$this->db->insert('tx_tempexcel', $data);
 					}
-						// delete file EXCEL after import
-						unlink($excelfile);
-						$hasil = array(
-							'sukses' => true,
-							'hasil' => 'Proses Impor Excel DO "'.ascii_to_entities(trim($file)).'" Sukses'
-						);
-						echo json_encode($hasil);
+					// delete file EXCEL after import
+					unlink($excelfile);
+					$response = array(
+						'success' => true, 
+						'data' => array('name' => $file),
+						'msg' => 'File Uploaded Successfully.'
+					);
+					echo json_encode($response);
 				} else {
 					$response = array(
 						'success' => false, 
@@ -882,10 +907,5 @@ class BeliDO extends CI_Controller
 		}
 	}
 
-	public function updateimport() {
-		$user = trim($this->session->userdata('gUser'));
-		$dept = trim($this->session->userdata('gDept'));
-	}
 
 }
-?>

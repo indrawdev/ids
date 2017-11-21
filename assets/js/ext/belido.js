@@ -88,30 +88,23 @@ Ext.onReady(function() {
 			{name: 'fs_kd_product', type: 'string'},
 			{name: 'fs_nm_product', type: 'string'},
 			{name: 'fn_qty', type: 'string'},
-			{name: 'fs_kd_unit', type: 'string'},
-			{name: 'fs_nm_unit', type: 'string'},
-			{name: 'fn_harga', type: 'string'},
-			{name: 'fn_diskon', type: 'string'},
-			{name: 'fs_kd_lux', type: 'string'},
-			{name: 'fs_nm_lux', type: 'string'},
-			{name: 'fn_persen', type: 'string'},
-			{name: 'fn_lux', type: 'string'},
+			{name: 'ts_thn', type: 'string'},
+			{name: 'fs_unit', type: 'string'},
 			{name: 'fs_seqno', type: 'string'}
 		]
 	});
 
-	Ext.define('DataGridImportDetail', {
+	Ext.define('DataGridDetail', {
 		extend: 'Ext.data.Model',
 		fields: [
 			{name: 'fs_rangka', type: 'string'},
 			{name: 'fs_mesin', type: 'string'},
-			{name: 'fs_cc', type: 'string'},
-			{name: 'fs_thn', type: 'string'},
+			{name: 'fs_cc', type: 'float'},
+			{name: 'fs_thn', type: 'float'},
 			{name: 'fs_kd_color', type: 'string'},
 			{name: 'fs_nm_color', type: 'string'},
 			{name: 'fs_kd_wh', type: 'string'},
 			{name: 'fs_nm_wh', type: 'string'},
-			{name: 'fn_hpp', type: 'string'},
 			{name: 'fs_seqno', type: 'string'},
 			{name: 'fs_kd_product', type: 'string'}
 		]
@@ -135,7 +128,20 @@ Ext.onReady(function() {
 	});
 
 	var grupListDetail = Ext.create('Ext.data.Store', {
-
+		autoLoad: false,
+		model: 'DataGridDetail',
+		proxy: {
+		actionMethods: {
+			read: 'POST'
+		},
+		reader: {
+			rootProperty: 'hasil',
+			totalProperty: 'total',
+			type: 'json'
+		},
+			type: 'ajax',
+			url: 'belido/griddetail'
+		}
 	});
 
 	var gridListImport = Ext.create('Ext.grid.Panel', {
@@ -148,20 +154,39 @@ Ext.onReady(function() {
 			width: 35,
 			xtype: 'rownumberer'
 		},{
+			dataIndex: 'fs_kd_wh',
+			menuDisabled: true,
+			text: 'WH',
+			flex: 1
+		},{
 			dataIndex: 'fs_kd_product',
 			menuDisabled: true,
-			text: 'Kode',
-			width: 70
+			text: 'Product Code',
+			flex: 1
 		},{
 			dataIndex: 'fs_nm_product',
 			menuDisabled: true,
-			text: 'Nama',
-			width: 200
+			text: 'Product Name',
+			flex: 3
+		},{
+			dataIndex: 'fs_thn',
+			menuDisabled: true,
+			text: 'Year',
+			flex: 0.5
 		},{
 			dataIndex: 'fn_qty',
 			menuDisabled: true,
 			text: 'Qty',
-			width: 50
+			flex: 0.5
+		},{
+			dataIndex: 'fs_unit',
+			menuDisabled: true,
+			text: 'Unit',
+			flex: 0.5
+		},{
+			dataIndex: 'fs_seqno',
+			menuDisabled: true,
+			hidden: true
 		}],
 		viewConfig: {
 			getRowClass: function() {
@@ -172,109 +197,70 @@ Ext.onReady(function() {
 	});
 
 	var gridListDetail = Ext.create('Ext.grid.Panel', {
-
-	});
-
-	var winUp = Ext.create('Ext.window.Window', {
-		bodyStyle: 'padding: 5px; background-color: '.concat(gBasePanel),
-		border: false,
-		closable: false,
-		draggable: true,
-		frame: false,
-		layout: 'fit',
-		resizable: false,
-		title: 'Import Delivery Order',
-		width: 450,
-		items: [
-			Ext.create('Ext.form.Panel', {
-				bodyStyle: 'background-color: '.concat(gBasePanel),
-				border: false,
-				frame: false,
-				id: 'frmWinUp',
-				name: 'frmWinUp',
-				items: [{
-					anchor: '100%',
-					layout: 'hbox',
-					xtype: 'container',
-					items: [{
-						flex: 3,
-						layout: 'anchor',
-						xtype: 'container',
-						items: [{
-							afterLabelTextTpl: required,
-							allowBlank: false,
-							anchor: '95%',
-							buttonText: 'Pilih File...',
-							emptyText: 'Pilih File Excel berisi delivery order',
-							id: 'txtFileExcel',
-							name: 'txtFileExcel',
-							xtype: 'filefield'
-						}]
-					},{
-						flex: 1,
-						layout: 'anchor',
-						xtype: 'container',
-						items: [{
-							anchor: '95%',
-							text: 'Upload',
-							id: 'btnUpload',
-							name: 'btnUpload',
-							xtype: 'button',
-							handler: function() {
-								var xForm = Ext.getCmp('frmWinUp').getForm();
-								if (xForm.isValid()) {
-									xForm.submit({
-										url: 'belido/uploadfile',
-										waitMsg: 'Mengunggah file anda...',
-										success: function() {
-											var xtext = Ext.decode(response.responseText);
-											if (xtext.sukses === true) {
-												Ext.MessageBox.show({
-													buttons: Ext.MessageBox.OK,
-													closable: false,
-													icon: Ext.MessageBox.INFO,
-													message: xtext.hasil,
-													title: 'IDS'
-												});
-												vMask.hide();
-												grupListImport.load();
-												//fnCekImport();
-											}
-										},
-										failure: function() {
-											Ext.MessageBox.show({
-												buttons: Ext.MessageBox.OK,
-												closable: false,
-												icon: Ext.MessageBox.INFO,
-												message: 'Update Gagal, Koneksi Gagal!!',
-												title: 'IDS'
-											});
-											vMask.hide();
-										}
-									});
-								}
-							}
-						}]
-					}]
-				},{
-					xtype: 'splitter'
-				}, 
-					gridListImport
-				],
-				buttons: [{
-					text: 'Proses Impor',
-					handler: function() {
-						
-					}
-				},{
-					text: 'Keluar',
-					handler: function() {
-						fnBatal();
-						winUp.hide();
-					}
-				}]
-			})
-		]
+		height: 150,
+		hidden: true,
+		sortableColumns: false,
+		store: grupListDetail,
+		columns: [{
+			xtype: 'rownumberer',
+			width: 30
+		},{
+			text: 'Chassis',
+			dataIndex: 'fs_rangka',
+			menuDisabled: true,
+			width: 200
+		},{
+			text: 'Machine',
+			dataIndex: 'fs_mesin',
+			menuDisabled: true,
+			width: 180
+		},{
+			align: 'center',
+			text: 'Cylinder',
+			dataIndex: 'fs_cc',
+			menuDisabled: true,
+			width: 60
+		},{
+			align: 'center',
+			text: 'Year',
+			dataIndex: 'fs_thn',
+			menuDisabled: true,
+			width: 50
+		},{
+			text: 'Color Code',
+			dataIndex: 'fs_kd_color',
+			menuDisabled: true,
+			width: 75
+		},{
+			text: 'Color Name',
+			dataIndex: 'fs_nm_color',
+			menuDisabled: true,
+			width: 180
+		},{
+			text: 'WH Code',
+			dataIndex: 'fs_kd_wh',
+			menuDisabled: true,
+			width: 75
+		},{
+			text: 'WH Name',
+			dataIndex: 'fs_nm_wh',
+			menuDisabled: true,
+			width: 170
+		},{
+			text: 'Seqno',
+			dataIndex: 'fs_seqno',
+			menuDisabled: true
+		},{
+			text: 'Product',
+			dataIndex: 'fs_kd_product',
+			menuDisabled: true
+		}],
+		viewConfig: {
+			getRowClass: function() {
+				return 'rowwrap';
+			},
+			markDirty: false
+		}
 	});
 
 	var grupRefno = Ext.create('Ext.data.Store', {
@@ -693,7 +679,7 @@ Ext.onReady(function() {
 			}
 		}
 	});
-	
+
 	var cboBM = {
 		anchor: '60%',
 		displayField: 'fs_nm_vareable',
@@ -1776,6 +1762,73 @@ Ext.onReady(function() {
 		}
 	});
 
+	// DUPLICATE WAREHOUSE
+	var winGrid7 = Ext.create('Ext.ux.LiveSearchGridPanel', {
+		autoDestroy: true,
+		height: 450,
+		width: 550,
+		sortableColumns: false,
+		store: grupWH,
+		bbar: Ext.create('Ext.PagingToolbar', {
+			displayInfo: true,
+			pageSize: 25,
+			plugins: Ext.create('Ext.ux.ProgressBarPager', {}),
+			store: grupWH,
+			items:[
+				'-', {
+				text: 'Exit',
+				handler: function() {
+					winCari7.hide();
+				}
+			}]
+		}),
+		columns: [
+			{xtype: 'rownumberer', width: 45},
+			{text: "Warehouse Code", dataIndex: 'fs_code', menuDisabled: true, width: 100},
+			{text: "Warehouse Name", dataIndex: 'fs_nm_code', menuDisabled: true, width: 380}
+		],
+		listeners: {
+			itemdblclick: function(grid, record)
+			{
+				Ext.getCmp('cboWH2').setValue(record.get('fs_nm_code'));
+				Ext.getCmp('txtWH2').setValue(record.get('fs_code'));
+				
+				winCari7.hide();
+			}
+		},
+		viewConfig: {
+			getRowClass: function() {
+				return 'rowwrap';
+			},
+			listeners: {
+				render: gridTooltipSearch
+			}
+		}
+	});
+
+	var winCari7 = Ext.create('Ext.window.Window', {
+		border: false,
+		closable: false,
+		draggable: true,
+		frame: false,
+		layout: 'fit',
+		plain: true,
+		resizable: false,
+		title: 'Searching...',
+		items: [
+			winGrid7
+		],
+		listeners: {
+			beforehide: function() {
+				vMask3.hide();
+			},
+			beforeshow: function() {
+				grupWH.load();
+				vMask3.show();
+			}
+		}
+	});
+
 	var cellEditingReg = Ext.create('Ext.grid.plugin.CellEditing', {
 		clicksToEdit: 2
 	});
@@ -2598,6 +2651,154 @@ Ext.onReady(function() {
 			stripeRows: true
 		}
 	});
+
+	var winUp = Ext.create('Ext.window.Window', {
+		bodyStyle: 'padding: 5px; background-color: '.concat(gBasePanel),
+		border: false,
+		closable: false,
+		draggable: true,
+		frame: false,
+		layout: 'fit',
+		resizable: false,
+		title: 'Import Delivery Order',
+		width: 700,
+		items: [
+			Ext.create('Ext.form.Panel', {
+				bodyStyle: 'background-color: '.concat(gBasePanel),
+				border: false,
+				frame: false,
+				id: 'frmWinUp',
+				name: 'frmWinUp',
+				items: [{
+					anchor: '100%',
+					layout: 'hbox',
+					xtype: 'container',
+					items: [{
+						flex: 1.5,
+						layout: 'anchor',
+						xtype: 'container',
+						items: [{
+							afterLabelTextTpl: required,
+							allowBlank: false,
+							anchor: '95%',
+							emptyText: 'Select a Warehouse',
+							id: 'cboWH2',
+							name: 'cboWH2',
+							xtype: 'textfield',
+							listeners: {
+								change: function(field, newValue) {
+									Ext.getCmp('txtWH2').setValue('');
+								}
+							},
+							triggers: {
+								reset: {
+									cls: 'x-form-clear-trigger',
+									handler: function(field) {
+										field.setValue('');
+										Ext.getCmp('txtWH2').setValue('');
+									}
+								},
+								cari: {
+									cls: 'x-form-search-trigger',
+									handler: function() {
+										winCari7.show();
+										winCari7.center();
+									}
+								}
+							}
+						},{
+							anchor: '95%',
+							emptyText: 'Enter a Warehouse Name',
+							hidden: true,
+							id: 'txtWH2',
+							name: 'txtWH2',
+							xtype: 'textfield'
+						}]
+					},{
+						flex: 3,
+						layout: 'anchor',
+						xtype: 'container',
+						items: [{
+							afterLabelTextTpl: required,
+							allowBlank: false,
+							anchor: '98%',
+							buttonText: 'Pilih File...',
+							emptyText: 'Pilih File Excel berisi Delivery Order',
+							id: 'txtFileExcel',
+							name: 'txtFileExcel',
+							xtype: 'filefield'
+						}]
+					},{
+						flex: 1,
+						layout: 'anchor',
+						xtype: 'container',
+						items: [{
+							allowBlank: false,
+							anchor: '98%',
+							id: 'txtThnKend',
+							name: 'txtThnKend',
+							xtype: 'textfield',
+							maxLength: 4,
+							value: new Date().getFullYear(),
+							enforceMaxLength: true
+						}]
+					},{
+						flex: 0.5,
+						layout: 'anchor',
+						xtype: 'container',
+						items: [{
+							anchor: '98%',
+							text: 'Upload',
+							id: 'btnUpload',
+							name: 'btnUpload',
+							xtype: 'button',
+							handler: function() {
+								var xForm = Ext.getCmp('frmWinUp').getForm();
+								if (xForm.isValid()) {
+									xForm.submit({
+										url: 'belido/uploadfile',
+										waitMsg: 'Mengunggah file anda...',
+										success: function(form, action) {
+											var result = action.result; 
+											var data = result.data;
+											var name = data.name;
+											var message = Ext.String.format('<b>Message:</b> {0}<br>'+'<b>FileName:</b> {1}', result.msg, name);
+											Ext.Msg.alert('Success', message);
+
+											grupListImport.load();
+											grupListDetail.load();
+											vMask.hide();
+										},
+										failure: function(form, action) {
+											Ext.Msg.alert('Failure', action.result.msg);
+											vMask.hide();
+										}
+									});
+								}
+							}
+						}]
+					}]
+				},{
+					xtype: 'splitter'
+				}, 
+					gridListImport,
+					gridListDetail
+				],
+				buttons: [{
+					text: 'Proses Impor',
+					handler: function() {
+						fnCekImport();
+					}
+				},{
+					text: 'Keluar',
+					handler: function() {
+						fnBatal();
+						winUp.hide();
+					}
+				}]
+			})
+		]
+	});
 	
 	function fnCekSave() {
 		if (this.up('form').getForm().isValid()) {
@@ -3017,7 +3218,6 @@ Ext.onReady(function() {
 	}
 
 	function fnCekImport() {
-		vMask2.show();
 		var xTotal = 0;
 		var xStore = gridListImport.getStore();
 			
@@ -3032,208 +3232,121 @@ Ext.onReady(function() {
 				buttons: Ext.MessageBox.OK,
 				closable: false,
 				icon: Ext.MessageBox.INFO,
-				message: 'Komposisi Komponen Tarif <= 0%!!',
+				message: 'Data Kosong',
 				title: 'IDS'
 			});
 			vMask2.hide();
 			return;
 		}
-			
-		if (xTotal > 100) {
-			Ext.MessageBox.show({
-				buttons: Ext.MessageBox.OK,
-				closable: false,
-				icon: Ext.MessageBox.INFO,
-				message: 'Komposisi Komponen Tarif > 100%!!',
-				title: 'IDS'
-			});
-			vMask2.hide();
-			return;
-		}
-		vMask2.hide();
-		winUp.hide();
-		fnImport();
-	}
-		
-	function fnImport() {
-		var xkdproduct = '';
-		var xnmproduct = '';
-		var xqty = '';
-		var xtotal = 0;
 
+		fnImport();
+		fnImportDetail();
+
+		vMask.hide();
+		winUp.hide();
+	}
+	
+	function fnImport() {
+		var xArrKdProd = Array();
+		var xArrNmProd = Array();
+		var xArrQty = Array();
+		var xArrUnit = Array();
+		var xArrSeqno = Array();
+				
+		grupGridProd.removeAll();
+				
 		var xStore = gridListImport.getStore();
-			
-		xStore.each(function(record) {
-			if (record.get('fn_persen') > 0) {
-				xkdproduct = xkdproduct +'|'+ record.get('fs_kd_product');
-				xnmproduct = xnmproduct +'|'+ record.get('fs_nm_product');
-				xqty = xqty +'|'+ record.get('fn_qty');
-				xtotal = xtotal + record.get('fs_unit');
-			}
-		});
-			
-		if (xtotal <= 0) {
-			Ext.MessageBox.show({
-				buttons: Ext.MessageBox.OK,
-				closable: false,
-				icon: Ext.MessageBox.INFO,
-				message: 'Komposisi Komponen Tarif <= 0%!!',
-				title: 'IDS'
+			xStore.each(function(record) {
+				xArrKdProd.push(record.get('fs_kd_product').trim());
+				xArrNmProd.push(record.get('fs_nm_product').trim());
+				xArrQty.push(record.get('fn_qty'));
+				xArrUnit.push(record.get('fs_unit'));
+				//xArrSeqno.push(record.get('fs_seqno').trim());
 			});
-			vMask.hide();
-			return;
-		}
-			
-		if (xtotal > 100) {
-			Ext.MessageBox.show({
-				buttons: Ext.MessageBox.OK,
-				closable: false,
-				icon: Ext.MessageBox.INFO,
-				message: 'Komposisi Komponen Tarif > 100%!!',
-				title: 'IDS'
-			});
-			vMask.hide();
-			return;
-		}
-			
-		Ext.Ajax.on('beforerequest', fnMaskShow);
-		Ext.Ajax.on('requestcomplete', fnMaskHide);
-		Ext.Ajax.on('requestexception', fnMaskHide);
-			
-		Ext.Ajax.request({
-			method: 'POST',
-			url: 'belido/UpdateNilaiTarif',
-			params: {
-				'fs_nm_file': vFile,
-				'fs_nm_file1': vFile1,
-				'fs_kd_tarif_detil': xKdTarifDetil,
-				'fs_nm_tarif_detil': xNmTarifDetil,
-				'fn_persen': xPersen,
-				'fd_tgl': Ext.Date.format(new Date(), 'Y.m.d.H.i.s')
-			},
-			success: function(response) {
-				var xText = Ext.decode(response.responseText);
-					
-				if (xText.sukses === true) {
-					var xData3 = xText.xData3;
-					var xData2 = xText.xData2;
-					var xData = xText.xData;
-						
-					//
-					grupGridTarifKomponen2 = Ext.create('Ext.data.Store', {
-						autoLoad: false,
-						groupField: 'fs_nm_tarif',
-						model: 'DataGridTarifKomponen',
-						data: xData3
-					});
-						
-					gridTarifKomponen2.reconfigure(grupGridTarifKomponen2);
-					gridTarifKomponen2.getView().refresh();
-					grupGridTarifKomponen2.sort([ {
-							property : 'fs_nm_tarif',
-							direction: 'ASC'
-						},{
-							property : 'fs_nm_tarif_tipe',
-							direction: 'ASC'
-						},{
-							property : 'fs_nm_kelas',
-							direction: 'ASC'
-						},{
-							property : 'fs_nm_tarif_detil',
-							direction: 'ASC'
-						}
-					]);
-					gridTarifKomponen2.getView().refresh();
-					//
-						
-					//
-					grupGridTarifKomponen = Ext.create('Ext.data.Store', {
-						autoLoad: false,
-						model: 'DataGridTarifKomponen',
-						data: xData2
-					});
-						
-					gridTarifKomponen.reconfigure(grupGridTarifKomponen);
-					gridTarifKomponen.getView().refresh();
-					grupGridTarifKomponen.sort([ {
-							property : 'fs_nm_tarif',
-							direction: 'ASC'
-						},{
-							property : 'fs_nm_tarif_tipe',
-							direction: 'ASC'
-						},{
-							property : 'fs_nm_kelas',
-							direction: 'ASC'
-						},{
-							property : 'fs_nm_tarif_detil',
-							direction: 'ASC'
-						}
-					]);
-					gridTarifKomponen.getView().refresh();
-					//
-						
-					//
-					Ext.Ajax.request({
-						method: 'POST',
-						url: 'belido/GridTarif',
-						timeout: 60000,
-						success: function(response) {
-							var xText = Ext.decode(response.responseText);
-								
-							if (xText.sukses === true) {
-								vDataField = xText.xDataField;
-								vDataKolom = xText.xDataKolom;
-									
-								Ext.define('DataGridTarif', {
-									extend: 'Ext.data.Model',
-									fields: vDataField
-								});
-									
-								grupGridTarif = Ext.create('Ext.data.Store', {
-									autoLoad: false,
-									model: 'DataGridTarif',
-									data: xData
-								});
-									
-								gridTarif.reconfigure(grupGridTarif, vDataKolom);
-								gridTarif.getView().refresh();
-								//fnKlikTarifTipe(0);
-							}
-						},
-						failure: function(response) {
-							var xText = Ext.decode(response.responseText);
-							Ext.MessageBox.show({
-								buttons: Ext.MessageBox.OK,
-								closable: false,
-								icon: Ext.MessageBox.INFO,
-								message: 'Tampil nilai default Gagal, Koneksi Gagal!!',
-								title: 'IDS'
-							});
-						}
-					});
-					//
-						
-					Ext.MessageBox.show({
-						buttons: Ext.MessageBox.OK,
-						closable: false,
-						icon: Ext.MessageBox.INFO,
-						message: xText.hasil,
-						title: 'IDS'
-					});
-				}
-			},
-			failure: function(response) {
-				var xText = Ext.decode(response.responseText);
-				Ext.MessageBox.show({
-					buttons: Ext.MessageBox.OK,
-					closable: false,
-					icon: Ext.MessageBox.INFO,
-					message: 'Update Gagal, Koneksi Gagal!!',
-					title: 'IDS'
+				
+		var xTotal = grupListImport.getCount();
+		if (xTotal > 0) {
+			for (i=0;i<xTotal;i++) {
+				xData = Ext.create('DataGridProd', {
+					fs_kd_product: xArrKdProd[i],
+					fs_nm_product: xArrNmProd[i],
+					fn_qty: xArrQty[i],
+					fs_kd_unit: xArrUnit[i],
+					//fs_seqno: xArrSeqno[i],
 				});
-				fnMaskHide();
+						
+				grupGridProd.insert(xTotal, xData);
 			}
+
+			grupGridProd.sort([ {
+				property : 'fs_kd_product',
+				direction: 'ASC'
+				}
+			]);
+			
+			gridProd.getView().refresh();
+			xTotal = grupGridProd.getCount();
+			Ext.getCmp('txtUrutProd').setValue(xTotal);
+			grupListImport.removeAll();
+		}
+	}
+
+	function fnImportDetail() {
+		var xArrKdProd = Array();
+		var xArrRangka = Array();
+		var xArrMesin = Array();
+		var xArrCC = Array();
+		var xArrThn = Array();
+		var xArrKdWarna = Array();
+		var xArrNmWarna = Array();
+		var xArrKdWH = Array();
+		var xArrNmWH = Array();
+		var xArrSeqno = Array();
+
+		grupGridReg.clearFilter();
+		grupGridReg.removeAll();
+
+		var xStore = gridListDetail.getStore();
+		xStore.each(function(record) {
+			xArrKdProd.push(record.get('fs_kd_product').trim());
+			xArrRangka.push(record.get('fs_rangka').trim());
+			xArrMesin.push(record.get('fs_mesin').trim());
+			xArrCC.push(record.get('fs_cc'));
+			xArrThn.push(record.get('fs_thn'));
+			xArrKdWarna.push(record.get('fs_kd_color').trim());
+			xArrNmWarna.push(record.get('fs_nm_color').trim());
+			xArrKdWH.push(record.get('fs_kd_wh').trim());
+			xArrNmWH.push(record.get('fs_nm_wh').trim());
+			xArrSeqno.push(record.get('fs_seqno').trim());
 		});
+
+		var xTotal = grupListDetail.getCount();
+		if (xTotal > 0) {
+			for (i=0;i<xTotal;i++) {
+				xData = Ext.create('DataGridReg', {
+					fs_kd_product: xArrKdProd[i],
+					fs_rangka: xArrRangka[i],
+					fs_mesin: xArrMesin[i],
+					fs_cc: xArrCC[i],
+					fs_thn: xArrThn[i],
+					fs_kd_color: xArrKdWarna[i],
+					fs_nm_color: xArrNmWarna[i],
+					fs_kd_wh: xArrKdWH[i],
+					fs_nm_wh: xArrNmWH[i],
+					fs_seqno: xArrSeqno[i]
+				});
+						
+				grupGridReg.insert(xTotal, xData);
+			}
+			
+			gridReg.getView().refresh();
+
+			grupListDetail.removeAll();
+
+			Ext.getCmp('cboComp').setValue('');
+			Ext.getCmp('txtComp').setValue('');
+			Ext.getCmp('txtDB').setValue('');
+		}
 	}
 
 	var frmBeliDO = Ext.create('Ext.form.Panel', {
@@ -3301,6 +3414,7 @@ Ext.onReady(function() {
 									xtype: 'button',
 									handler: function() {
 										grupListImport.load();
+										grupListDetail.load();
 										//Ext.getCmp('cboTrs').setValue('');
 										vMask.show();
 										winUp.show();
@@ -3364,6 +3478,19 @@ Ext.onReady(function() {
 
 	function fnMaskHide2() {
 		winReg.unmask();
+	}
+
+	var vMask3 = new Ext.LoadMask({
+		msg: 'Please wait...',
+		target: winUp
+	});
+
+	function fnMaskShow3() {
+		winUp.mask('Please wait...');
+	}
+
+	function fnMaskHide3() {
+		winUp.unmask();
 	}
 	
 	frmBeliDO.render(Ext.getBody());
