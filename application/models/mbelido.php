@@ -170,7 +170,8 @@ class MBeliDO extends CI_Model
 		$xSQL = ("
 			SELECT a.fs_kd_wh, a.fs_kd_product, b.fs_nm_product, 
 				CONVERT(NUMERIC(35,0), a.fs_thn) fs_thn,
-				COUNT(a.fs_kd_product) as fn_qty, 'UNIT' as fs_unit
+				COUNT(a.fs_kd_product) as fn_qty, 'UNIT' as fs_unit,
+				(select count(distinct x.fs_kd_product) from tx_tempexcel x where x.fs_kd_product < a.fs_kd_product ) + 1 as fs_seqno
 			FROM tx_tempexcel a (NOLOCK)
 			LEFT JOIN tm_product b (NOLOCK) ON b.fs_kd_product = a.fs_kd_product
 			WHERE a.fs_kd_dept = '".trim($this->session->userdata('gDept'))."'
@@ -188,13 +189,14 @@ class MBeliDO extends CI_Model
 	function listImportDetail()
 	{
 		$xSQL = ("
-			SELECT 
+			SELECT DISTINCT
 				a.fs_rangka, a.fs_machine as fs_mesin, 
 				CONVERT(NUMERIC(35,0), d.fn_silinder) fs_cc,
 				CONVERT(NUMERIC(35,0), a.fs_thn) fs_thn, 
 				a.fs_kd_warna as fs_kd_color, 
 				c.fs_nm_vareable as fs_nm_color,
-				a.fs_kd_wh, a.fs_nm_wh, a.fs_kd_product
+				a.fs_kd_wh, a.fs_nm_wh, a.fs_kd_product,
+			(select count(distinct x.fs_kd_product) from tx_tempexcel x where x.fs_kd_product < a.fs_kd_product ) + 1 as fs_seqno
 			FROM tx_tempexcel a (NOLOCK)
 			LEFT JOIN tm_product b (NOLOCK) 
 			ON b.fs_kd_product = a.fs_kd_product

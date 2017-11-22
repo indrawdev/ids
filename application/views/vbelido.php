@@ -8,7 +8,7 @@
 	<div class="center" id="loading">
 		<img src="<?php echo config_item('base_img');?>loading.gif" alt="Loading"/>
 	</div>
-	<script type="text/javascript" src="<?php echo config_item('base_ext');?>ext-all-debug.js"></script>
+	<script type="text/javascript" src="<?php echo config_item('base_ext');?>ext-all.js"></script>
 	<script type="text/javascript" src="<?php echo config_item('base_lokal');?>ext-locale-en.js?cb=<?php echo time()?>"></script>
 	<script type="text/javascript">
 		var gBaseUX = '<?php echo config_item('base_ux');?>';

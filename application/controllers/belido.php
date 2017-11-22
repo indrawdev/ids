@@ -773,7 +773,6 @@ class BeliDO extends CI_Controller
 		$xArr = array();
 		if ($ssql->num_rows() > 0)
 		{
-			$seqno = 1;
 			foreach ($ssql->result() as $xRow)
 			{
 				$xArr[] = array(
@@ -783,10 +782,8 @@ class BeliDO extends CI_Controller
 					'fs_thn'		=> trim($xRow->fs_thn),
 					'fn_qty'		=> trim($xRow->fn_qty),
 					'fs_unit'		=> 'UNIT',
-					'fs_seqno'		=> trim($seqno)
+					'fs_seqno'		=> trim($xRow->fs_seqno)
 				);
-
-				$seqno = $seqno + 1;
 			}
 		}
 		echo json_encode($xArr);
@@ -797,7 +794,7 @@ class BeliDO extends CI_Controller
 		$ssql = $this->mBeliDO->listImportDetail();
 		$xArr = array();
 		if ($ssql->num_rows() > 0)
-		{
+		{	
 			foreach ($ssql->result() as $xRow)
 			{
 				$xArr[] = array(
@@ -809,7 +806,8 @@ class BeliDO extends CI_Controller
 					'fs_nm_color'	=> trim($xRow->fs_nm_color),
 					'fs_kd_wh'		=> trim($xRow->fs_kd_wh),
 					'fs_nm_wh'		=> trim($xRow->fs_nm_wh),
-					'fs_kd_product'	=> trim($xRow->fs_kd_product)
+					'fs_kd_product'	=> trim($xRow->fs_kd_product),
+					'fs_seqno'		=> trim($xRow->fs_seqno)
 				);
 			}
 		}

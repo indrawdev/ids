@@ -3261,7 +3261,7 @@ Ext.onReady(function() {
 				xArrNmProd.push(record.get('fs_nm_product').trim());
 				xArrQty.push(record.get('fn_qty'));
 				xArrUnit.push(record.get('fs_unit'));
-				//xArrSeqno.push(record.get('fs_seqno').trim());
+				xArrSeqno.push(record.get('fs_seqno').trim());
 			});
 				
 		var xTotal = grupListImport.getCount();
@@ -3272,7 +3272,7 @@ Ext.onReady(function() {
 					fs_nm_product: xArrNmProd[i],
 					fn_qty: xArrQty[i],
 					fs_kd_unit: xArrUnit[i],
-					//fs_seqno: xArrSeqno[i],
+					fs_seqno: zeroPad(xArrSeqno[i], 6)
 				});
 						
 				grupGridProd.insert(xTotal, xData);
@@ -3333,7 +3333,7 @@ Ext.onReady(function() {
 					fs_nm_color: xArrNmWarna[i],
 					fs_kd_wh: xArrKdWH[i],
 					fs_nm_wh: xArrNmWH[i],
-					fs_seqno: xArrSeqno[i]
+					fs_seqno: zeroPad(xArrSeqno[i], 6)
 				});
 						
 				grupGridReg.insert(xTotal, xData);
